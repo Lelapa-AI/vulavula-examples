@@ -1,0 +1,15 @@
+[project]
+name = "1-intent-detection-and-language-switching"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Lepapa Engineering", email = "engineering@lelapa.ai"},
+]
+dependencies = []
+requires-python = "==3.13.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
