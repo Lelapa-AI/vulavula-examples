@@ -11,6 +11,7 @@ vulavula-examples/
   ├── 1-intent-detection-and-language-switching/
   │    ├── README.md
   │    ├── src/
+  |    ├── tests/
   │    └── ...
   └── README.md
 ```
