@@ -28,5 +28,16 @@ provides details on the use case, setup instructions, and how to run the example
    ```
 2. Navigate to a directory that has an example you are interested in.
 
+## Prerequisites
+We use `pdm` for managing dependencies and as a script runner. Ensure you have `pdm` installed in your path.
+```commandline
+pip install --user pdm
+```
+Or if you are on macos:
+```commandline
+brew install pdm
+```
+More up-to-date installation instructions can be found [here](https://pdm-project.org/en/latest/).
+
 ## Examples
 [1-intent-detection-and-language-switching](1-intent-detection-and-language-switching/)
