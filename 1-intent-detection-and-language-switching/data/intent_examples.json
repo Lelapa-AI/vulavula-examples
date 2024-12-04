@@ -1,0 +1,18 @@
+[
+  {
+    "intent": "Playing",
+    "example": "It's such a lovely day today. I feel like going to the park to play with my dog."
+  },
+  {
+    "intent": "Playing",
+    "example": "When I was a child I used to like riding bicycles outside. I want to start doing that again.."
+  },
+  {
+    "intent": "Reading",
+    "example": "I have an exam tomorrow. I should really study this material otherwise I will fail."
+  },
+  {
+    "intent": "Reading",
+    "example": "When I was at school, I really liked reading books in the library. Reading made me understand the anatomy of my dog."
+  }
+]

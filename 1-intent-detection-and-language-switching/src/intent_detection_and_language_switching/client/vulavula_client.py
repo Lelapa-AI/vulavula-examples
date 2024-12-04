@@ -1,7 +1,8 @@
 import json
 import requests
+from typing import List
 from requests.exceptions import HTTPError, RequestException
-from ..domain.schema import IntentDetectionRequest, IntentDetectionResponse
+from domain.schema import IntentDetectionRequest, IntentDetectionResponse
 
 
 class VulavulaClient:
@@ -12,7 +13,7 @@ class VulavulaClient:
     def send_intent_detection_request(
             self,
             intent_detection_request: IntentDetectionRequest
-    ) -> IntentDetectionResponse:
+    ) -> List[IntentDetectionResponse]:
         headers = {
             "Content-Type": "application/json",
             "X-CLIENT-TOKEN": self.vulavula_api_key
@@ -24,7 +25,7 @@ class VulavulaClient:
                 headers=headers
             )
             response.raise_for_status()
-            intent_detection_response = IntentDetectionResponse(**response.json())
+            intent_detection_response = [IntentDetectionResponse(**item) for item in response.json()]
             return intent_detection_response
         except (HTTPError, RequestException) as e:
             print(e)

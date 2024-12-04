@@ -1,1 +1,1 @@
-from intent_detection import *
+from .intent_detection import *

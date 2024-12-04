@@ -1,14 +1,15 @@
 from pydantic import BaseModel
+from typing import List
 
 
-class Example(BaseModel):
+class IntentExample(BaseModel):
     intent: str
     example: str
 
 
 class IntentDetectionRequest(BaseModel):
-    inputs: list[str]
-    examples: list[Example]
+    inputs: List[str]
+    examples: List[IntentExample]
 
 
 class IntentDetectionScore(BaseModel):
@@ -17,4 +18,4 @@ class IntentDetectionScore(BaseModel):
 
 
 class IntentDetectionResponse(BaseModel):
-    probabilities: list[IntentDetectionScore]
+    probabilities: List[IntentDetectionScore]
