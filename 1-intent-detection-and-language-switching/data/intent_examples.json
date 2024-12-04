@@ -14,5 +14,13 @@
   {
     "intent": "Reading",
     "example": "When I was at school, I really liked reading books in the library. Reading made me understand the anatomy of my dog."
+  },
+  {
+    "intent": "Ukusebenza",
+    "example": "Umsebenzi wami ngiyawuthanda. Ngiyakuthanda ukwakha izinto ezisiza abantu empilweni zabo."
+  },
+  {
+    "intent": "Ukusebenza",
+    "example": "Ngivuka ekuseni kwelanga nsuku zonke ngilubhekise edolobheni. Kulapho engiyiphanda khona imali."
   }
 ]
