@@ -1,12 +1,12 @@
 import json
 import requests
 from requests.exceptions import HTTPError, RequestException
-from domain.schema import (
-    KnowledgeBaseCreateRequest,
-    KnowledgeBaseCreateResponse,
-    KnowledgeBaseDocumentAddResponse,
-    KnowledgeBaseQueryResponse,
-    KnowledgeBaseQuery
+from domain.schema.knowledgebase import (
+    KnowledgebaseCreateRequest,
+    KnowledgebaseCreateResponse,
+    KnowledgebaseDocumentAddResponse,
+    KnowledgebaseQueryResponse,
+    KnowledgebaseQuery
 )
 
 
@@ -31,8 +31,22 @@ class VulavulaClient:
 
     def create_knowledge_base(
             self,
-            knowledge_base_create_request: KnowledgeBaseCreateRequest
-    ) -> KnowledgeBaseCreateResponse:
+            knowledgebase_create_request: KnowledgebaseCreateRequest
+    ) -> KnowledgebaseCreateResponse:
+        """
+        Creates a new knowledgebase.
+
+        Args:
+            knowledgebase_create_request (KnowledgebaseCreateRequest): The request object containing
+                details about the knowledgebase to be created.
+
+        Returns:
+            KnowledgebaseCreateResponse: The response object containing details of the created knowledgebase.
+
+        Raises:
+            HTTPError: If the HTTP request returns an error status.
+            RequestException: For any other issues during the HTTP request.
+        """
         headers = {
             "Content-Type": "application/json",
             "X-CLIENT-TOKEN": self.vulavula_api_key
@@ -40,11 +54,11 @@ class VulavulaClient:
         try:
             response = requests.post(
                 f"{self.base_url}/api/v1/search/knowledgebase",
-                data=json.dumps(knowledge_base_create_request.model_dump()),
+                data=json.dumps(knowledgebase_create_request.model_dump()),
                 headers=headers
             )
             response.raise_for_status()
-            knowledge_base_create_response = KnowledgeBaseCreateResponse(**response.json())
+            knowledge_base_create_response = KnowledgebaseCreateResponse(**response.json())
             return knowledge_base_create_response
         except (HTTPError, RequestException) as e:
             print(e)
@@ -53,7 +67,21 @@ class VulavulaClient:
             self,
             knowledgebase_id: str,
             file_path: str
-    ) -> KnowledgeBaseDocumentAddResponse:
+    ) -> KnowledgebaseDocumentAddResponse:
+        """
+        Adds a document to an existing knowledgebase.
+
+        Args:
+            knowledgebase_id (str): The unique identifier of the knowledgebase.
+            file_path (str): The file path to the document to be uploaded.
+
+        Returns:
+            KnowledgebaseDocumentAddResponse: The response object containing details of the added document.
+
+        Raises:
+            HTTPError: If the HTTP request returns an error status.
+            RequestException: For any other issues during the HTTP request.
+        """
         files = {
             "file": open(file_path, "rb")
         }
@@ -67,7 +95,7 @@ class VulavulaClient:
                 files=files
             )
             response.raise_for_status()
-            knowledgebase_document_response = KnowledgeBaseDocumentAddResponse(**response.json())
+            knowledgebase_document_response = KnowledgebaseDocumentAddResponse(**response.json())
             return knowledgebase_document_response
         except (HTTPError, RequestException) as e:
             print(e)
@@ -75,8 +103,22 @@ class VulavulaClient:
     def query_knowledgebase(
             self,
             knowledgebase_id: str,
-            query: KnowledgeBaseQuery
-    ) -> KnowledgeBaseQueryResponse:
+            query: KnowledgebaseQuery
+    ) -> KnowledgebaseQueryResponse:
+        """
+        Queries an existing knowledgebase for specific information.
+
+        Args:
+            knowledgebase_id (str): The unique identifier of the knowledgebase to query.
+            query (KnowledgebaseQuery): The query object containing the search criteria.
+
+        Returns:
+            KnowledgebaseQueryResponse: The response object containing the search results.
+
+        Raises:
+            HTTPError: If the HTTP request returns an error status.
+            RequestException: For any other issues during the HTTP request.
+        """
         headers = {
             "Content-Type": "application/json",
             "X-CLIENT-TOKEN": self.vulavula_api_key
@@ -88,12 +130,22 @@ class VulavulaClient:
                 headers=headers
             )
             response.raise_for_status()
-            knowledge_base_query_response = KnowledgeBaseQueryResponse(**response.json())
+            knowledge_base_query_response = KnowledgebaseQueryResponse(**response.json())
             return knowledge_base_query_response
         except (HTTPError, RequestException) as e:
             print(e)
 
     def delete_knowledgebase(self, knowledgebase_id: str):
+        """
+        Deletes an existing knowledgebase.
+
+        Args:
+           knowledgebase_id (str): The unique identifier of the knowledgebase to be deleted.
+
+        Raises:
+           HTTPError: If the HTTP request returns an error status.
+           RequestException: For any other issues during the HTTP request.
+        """
         headers = {
             "Content-Type": "application/json",
             "X-CLIENT-TOKEN": self.vulavula_api_key
