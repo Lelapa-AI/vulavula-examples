@@ -12,7 +12,7 @@ vulavula-examples/
   │    ├── README.md
   │    ├── src/
   |    ├── tests/
-  ├── 2-transcription
+  ├── 3-transcription
   │    ├── README.md
   │    ├── src/
   |    ├── tests/
@@ -45,3 +45,4 @@ More up-to-date installation instructions can be found [here](https://pdm-projec
 
 ## Examples
 [1-intent-detection-and-language-switching](1-intent-detection-and-language-switching/)
+[3-Transcription](3-transcription/)
