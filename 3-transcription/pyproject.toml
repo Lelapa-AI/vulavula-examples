@@ -1,0 +1,21 @@
+[project]
+name = "2-transcription"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Lepapa Engineering", email = "engineering@lelapa.ai"},
+]
+dependencies = [
+    "requests>=2.32.3",
+    "pydantic>=2.10.4",
+    "pydantic-settings>=2.7.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+fast = "python src/fast_transcription/__main__.py"
+
+[tool.pdm]
+distribution = false
