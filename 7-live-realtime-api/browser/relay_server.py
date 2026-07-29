@@ -20,7 +20,7 @@ from flask_cors import CORS
 load_dotenv()
 
 VULAVULA_API_KEY = os.environ["VULAVULA_API_KEY"]
-BASE_URL = os.environ.get("BASE_URL", "https://vulavula-services.lelapa.ai/api")
+BASE_URL = os.environ.get("BASE_URL", "https://api.lelapa.ai")
 
 app = Flask(__name__)
 CORS(app)
