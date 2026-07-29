@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Vulavula Live API — browser example</title>
+</head>
+<body>
+  <h1>Vulavula Live API — microphone example</h1>
+
+  <p>
+    Mints a short-lived token from the local relay server (<code>relay_server.py</code>,
+    holds your real API key), then streams your microphone audio to the Live API and prints
+    transcript/translation deltas below.
+  </p>
+
+  <label>
+    Target language (optional, e.g. <code>eng_Latn</code>, leave blank for transcription-only):
+    <input id="targetLanguage" type="text" />
+  </label>
+  <br /><br />
+
+  <button id="startButton">Start</button>
+  <button id="stopButton" disabled>Stop</button>
+
+  <h2>Source transcript</h2>
+  <pre id="sourceTranscript"></pre>
+
+  <h2>Translated transcript</h2>
+  <pre id="translatedTranscript"></pre>
+
+  <script src="script.js"></script>
+</body>
+</html>

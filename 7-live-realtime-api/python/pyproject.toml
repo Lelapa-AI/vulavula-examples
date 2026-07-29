@@ -1,0 +1,22 @@
+[project]
+name = "7-live-realtime-api"
+version = "0.1.0"
+description = "Example client for the Vulavula Live API (streaming transcription + translation)"
+authors = [
+    {name = "Lepapa Engineering", email = "engineering@lelapa.ai"},
+]
+dependencies = [
+    "requests>=2.32.3",
+    "websockets>=13.0",
+    "pydantic>=2.10.4",
+    "pydantic-settings>=2.7.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+live = "python src/live_realtime_api/__main__.py"
+
+[tool.pdm]
+distribution = false
