@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     VULAVULA_API_KEY: str  # The API key required for authenticating with the VULAVULA service. (Obtain the key from https://vulavula.lelapa.ai/)
     BASE_URL: str = 'https://api.lelapa.ai'  # The base URL for the API (this has a default value but can be overridden in the .env file) NOTE: No leading slash should be included.
     AUDIO_FILE_PATH: str  # Path to a mono 16-bit PCM WAV file to stream.
-    TARGET_LANGUAGE: str = ""  # Optional target language code (e.g. "eng_Latn") to enable translation. Leave empty for transcription-only.
+    TARGET_LANGUAGE: str = ""  # Optional target language code (e.g. "eng") to enable translation. Leave empty for transcription-only.
 
 
 # The '@lru_cache()' decorator caches the result of the function, so subsequent calls to 'get_settings()'

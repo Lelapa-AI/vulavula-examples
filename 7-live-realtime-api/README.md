@@ -19,7 +19,7 @@ pdm install -p .
 
 Set up `.env` from `.env.example` (your `VULAVULA_API_KEY`, and `AUDIO_FILE_PATH` pointing at
 a mono 16-bit PCM WAV file). Leave `TARGET_LANGUAGE` blank for transcription-only, or set it
-(e.g. `eng_Latn`) to also get translated-transcript deltas.
+(e.g. `eng`) to also get translated-transcript deltas.
 
 ```commandline
 pdm run live

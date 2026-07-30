@@ -12,7 +12,7 @@ CLIENT_SECRET_PATH = "/v1/realtime/client_secrets"
 REALTIME_WS_PATH = "/v1/realtime"
 
 
-def mint_client_secret(base_url: str, api_key: str, target_language: str) -> str:
+def mint_client_secret(base_url: str, api_key: str, target_language: str, input_sample_rate: int) -> str:
     """
     Call the Live API's REST endpoint to mint a short-lived client secret. This step must
     happen server-side with your real API key -- only the returned short-lived value should
@@ -23,6 +23,8 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str) -> str
         api_key (str): Your real Vulavula API key.
         target_language (str): Target language code to enable translation, or "" for
             transcription-only.
+        input_sample_rate (int): Sample rate of the audio you'll stream -- must match the
+            actual WAV file's frame rate, since the server resamples based on this value.
 
     Returns:
         str: A short-lived client secret to use for the WebSocket handshake.
@@ -32,7 +34,7 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str) -> str
     """
     session = {
         "audio": {
-            "input": {"format": {"type": "audio/pcm", "rate": 24000}},
+            "input": {"format": {"type": "audio/pcm", "rate": input_sample_rate}},
         }
     }
     if target_language:
@@ -75,6 +77,11 @@ def read_pcm16_chunks(wav_path: str, chunk_ms: int = 100):
             if not frames:
                 break
             yield frames
+
+
+def get_wav_sample_rate(wav_path: str) -> int:
+    with wave.open(wav_path, "rb") as wav_file:
+        return wav_file.getframerate()
 
 
 async def print_server_events(ws) -> None:
@@ -126,8 +133,9 @@ def main():
     """
     settings = get_settings()
 
+    input_sample_rate = get_wav_sample_rate(settings.AUDIO_FILE_PATH)
     client_secret = mint_client_secret(
-        settings.BASE_URL, settings.VULAVULA_API_KEY, settings.TARGET_LANGUAGE
+        settings.BASE_URL, settings.VULAVULA_API_KEY, settings.TARGET_LANGUAGE, input_sample_rate
     )
     ws_url = settings.BASE_URL.replace("https://", "wss://").replace("http://", "ws://") + REALTIME_WS_PATH
 

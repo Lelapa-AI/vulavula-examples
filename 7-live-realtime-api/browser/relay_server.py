@@ -31,7 +31,7 @@ def mint_token():
     """
     Mint a short-lived client secret for the browser to use on the Live API WebSocket.
 
-    Expects an optional JSON body: {"target_language": "eng_Latn"}. Omit or leave blank for
+    Expects an optional JSON body: {"target_language": "eng"}. Omit or leave blank for
     transcription-only.
     """
     target_language = (request.get_json(silent=True) or {}).get("target_language", "")
