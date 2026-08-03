@@ -43,7 +43,10 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str, input_
     try:
         response = requests.post(
             f"{base_url}{CLIENT_SECRET_PATH}",
-            headers={"X-CLIENT-TOKEN": api_key, "Content-Type": "application/json"},
+            # The Live API's usage gate expects x-api-key, not X-CLIENT-TOKEN (which the
+            # other, sync-transcription examples use) -- see vv-auth's
+            # /v1/verify-live-usage route.
+            headers={"x-api-key": api_key, "Content-Type": "application/json"},
             json={"session": session},
         )
         response.raise_for_status()

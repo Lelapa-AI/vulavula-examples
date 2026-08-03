@@ -12,7 +12,11 @@ class Settings(BaseSettings):
 
     # Define the environment variables the application needs. These will be loaded from the `.env` file.
     VULAVULA_API_KEY: str  # The API key required for authenticating with the VULAVULA service. (Obtain the key from https://vulavula.lelapa.ai/)
-    BASE_URL: str = 'https://api.lelapa.ai'  # The base URL for the API (this has a default value but can be overridden in the .env file) NOTE: No leading slash should be included.
+    # The base URL for the API (this has a default value but can be overridden in the .env
+    # file) NOTE: No leading slash should be included. Unlike the other examples, the Live
+    # API isn't routed on api.lelapa.ai yet -- it currently only exists on their-cloud-mvp's
+    # own staging host. Switch this once /v1/realtime is exposed on the public product domain.
+    BASE_URL: str = 'https://triton.staging.lelapa.ai'
     AUDIO_FILE_PATH: str  # Path to a mono 16-bit PCM WAV file to stream.
     TARGET_LANGUAGE: str = ""  # Optional target language code (e.g. "eng") to enable translation. Leave empty for transcription-only.
 

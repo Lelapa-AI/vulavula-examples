@@ -20,7 +20,10 @@ from flask_cors import CORS
 load_dotenv()
 
 VULAVULA_API_KEY = os.environ["VULAVULA_API_KEY"]
-BASE_URL = os.environ.get("BASE_URL", "https://api.lelapa.ai")
+# Unlike the other examples, the Live API isn't routed on api.lelapa.ai yet -- it currently
+# only exists on their-cloud-mvp's own staging host. Switch this once /v1/realtime is
+# exposed on the public product domain.
+BASE_URL = os.environ.get("BASE_URL", "https://triton.staging.lelapa.ai")
 
 app = Flask(__name__)
 CORS(app)
@@ -46,7 +49,9 @@ def mint_token():
 
     response = requests.post(
         f"{BASE_URL}/v1/realtime/client_secrets",
-        headers={"X-CLIENT-TOKEN": VULAVULA_API_KEY, "Content-Type": "application/json"},
+        # The Live API's usage gate expects x-api-key, not X-CLIENT-TOKEN -- see vv-auth's
+        # /v1/verify-live-usage route.
+        headers={"x-api-key": VULAVULA_API_KEY, "Content-Type": "application/json"},
         json={"session": session},
     )
     response.raise_for_status()
