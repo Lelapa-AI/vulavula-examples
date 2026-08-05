@@ -46,3 +46,4 @@ More up-to-date installation instructions can be found [here](https://pdm-projec
 ## Examples
 [1-intent-detection-and-language-switching](1-intent-detection-and-language-switching/)
 [3-Transcription](3-transcription/)
+[8-post-install-qualification](8-post-install-qualification/)
