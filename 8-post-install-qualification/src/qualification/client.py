@@ -29,7 +29,7 @@ class TimedResponse:
 
 class VulavulaClient:
     """A thin client for the handful of endpoints exposed by a self-hosted
-    Vulavula ("Your Cloud" / their-cloud-mvp) deployment, used to qualify it.
+    ("Your Cloud") Vulavula deployment, used to qualify it.
 
     Unlike the hosted vulavula-services.lelapa.ai API (which authenticates via
     an X-CLIENT-TOKEN header), self-hosted deployments authenticate with

@@ -86,10 +86,10 @@ repo), so if you also want to qualify sync (`/v1/transcribe`) and live
 - `AUDIO_LANG_CODE` - the language code of the audio (default `zul`).
 
 If these are unset, the transcription checks (both sync and live) are
-reported as `SKIP`. Note the live streaming checks send the audio at
-real-time speed (matching how a real client would), so they take about as
-long as the audio itself - use a short sample (a few seconds) if you just
-want a quick check.
+reported as `SKIP`. Note the live streaming checks send the audio as fast as
+possible rather than pacing it to real-time, but a long sample will still
+take a while to fully process - use a short sample (a few seconds) if you
+just want a quick check.
 
 ## Running
 

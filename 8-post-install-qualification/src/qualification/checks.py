@@ -28,9 +28,9 @@ def _status_detail(response) -> str:
     """Human-readable failure detail for a response, covering both HTTP error
     statuses and requests never reaching the server at all (DNS/connection/timeout).
 
-    Deployment error responses are FastAPI HTTPExceptions, so the useful detail
-    (e.g. "Invalid sample rate: 8000 Hz") lives at body["detail"]["error"] /
-    body["detail"]["message"] - surface that instead of just the status code.
+    Error responses carry the useful detail (e.g. "Invalid sample rate: 8000 Hz")
+    at body["detail"]["error"] / body["detail"]["message"] - surface that
+    instead of just the status code.
     """
     if response.status_code is None:
         return f"request failed: {getattr(response, 'error', 'unknown error')}"
@@ -51,8 +51,8 @@ def _status_detail(response) -> str:
 
 
 def _transcription_text(body: dict) -> str:
-    """Extracts transcription_text from the transcribe endpoint's
-    ApiResponseDto envelope: {"success": bool, "data": {"transcription_text": ...}, ...}.
+    """Extracts transcription_text from the transcribe endpoint's response
+    envelope: {"success": bool, "data": {"transcription_text": ...}, ...}.
     """
     if not body.get("success"):
         raise ValueError(body.get("message") or body.get("error") or "transcription request did not succeed")

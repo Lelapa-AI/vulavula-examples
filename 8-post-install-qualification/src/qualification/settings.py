@@ -41,8 +41,9 @@ class Settings(BaseSettings):
     MAX_LIVE_FIRST_DELTA_LATENCY_MS: float = 5000
     # Maximum ratio of (total time to fully process the streamed audio) to
     # (the audio's own duration) - i.e. how far behind real-time the live
-    # endpoint is allowed to lag. 1.0 would mean it keeps up exactly; some
-    # slack is expected since audio is sent paced at real-time speed already.
+    # endpoint is allowed to lag. Audio is sent as fast as the socket allows
+    # (not paced to real-time), so a healthy deployment should score well
+    # under 1.0 here.
     MAX_LIVE_REALTIME_FACTOR: float = 1.5
 
     # Accuracy thresholds.

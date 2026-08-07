@@ -128,15 +128,12 @@ async def _stream_transcription(base_url: str, client_secret: str, wav_path: str
             close_requested = False
 
             # The protocol has no explicit "flush"/"end of input" event short of
-            # session.close - and the server's close handler stops and
-            # synchronously finalizes the ASR pipeline on whatever it has,
-            # rather than waiting for already-buffered audio to finish
-            # processing. Sending audio faster than real-time (as we do here)
-            # means the pipeline is very likely still behind by the time the
-            # last chunk is sent, so closing immediately truncates the
-            # transcript. Instead: keep reading; once all audio is sent and no
-            # further event arrives within `timeout_s` (the pipeline has gone
-            # quiet, i.e. caught up), only then request session.close.
+            # session.close, and closing right after the last chunk is sent can
+            # truncate the transcript if the server hasn't finished processing
+            # already-sent audio yet - especially since we're sending faster
+            # than real-time here. Instead: keep reading; once all audio is
+            # sent and no further event arrives within `timeout_s` (i.e. things
+            # have gone quiet), only then request session.close.
             while True:
                 try:
                     message = await asyncio.wait_for(ws.recv(), timeout=timeout_s)
