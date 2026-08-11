@@ -17,6 +17,11 @@ vulavula-examples/
   │    ├── src/
   |    ├── tests/
   │    └── ...
+  ├── 7-live-realtime-api
+  │    ├── README.md
+  │    ├── python/
+  |    ├── browser/
+  │    └── ...
   └── README.md
 ```
 Each directory under `vulavula-examples/` represents a standalone use case, complete with its own `README.md` that 
@@ -46,3 +51,4 @@ More up-to-date installation instructions can be found [here](https://pdm-projec
 ## Examples
 [1-intent-detection-and-language-switching](1-intent-detection-and-language-switching/)
 [3-Transcription](3-transcription/)
+[7-Live-Realtime-API](7-live-realtime-api/)

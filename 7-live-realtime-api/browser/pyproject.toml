@@ -1,0 +1,22 @@
+[project]
+name = "7-live-realtime-api-relay"
+version = "0.1.0"
+description = "Local relay server for the Vulavula Live API browser example"
+authors = [
+    {name = "Lepapa Engineering", email = "engineering@lelapa.ai"},
+]
+dependencies = [
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "requests>=2.32.3",
+    "python-dotenv>=1.0.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+relay = "python relay_server.py"
+
+[tool.pdm]
+distribution = false
