@@ -1,0 +1,28 @@
+[project]
+name = "8-post-install-qualification"
+version = "0.1.0"
+description = "Post-install qualification script for self-hosted Vulavula deployments"
+authors = [
+    {name = "Lepapa Engineering", email = "engineering@lelapa.ai"},
+]
+dependencies = [
+    "requests>=2.32.3",
+    "websockets>=13.0",
+    "pydantic>=2.10.4",
+    "pydantic-settings>=2.7.0",
+    "werpy>=2.1.2",
+]
+requires-python = ">=3.10,<3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+qualify = "python src/qualification/__main__.py"
+
+[tool.pdm]
+distribution = false
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
