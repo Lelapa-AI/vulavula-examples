@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vulavula Live API — browser example</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <img src="lelapa-logo.png" alt="Lelapa AI" />
+  </header>
+
+  <main>
+    <h1>Live API — microphone demo</h1>
+    <p class="subtitle">
+      Mints a short-lived token from the local relay server (<code>relay_server.py</code>,
+      holds your real API key), then streams your microphone audio to the Live API and shows
+      transcript/translation deltas below as they arrive.
+    </p>
+
+    <label for="targetLanguage">
+      Target language
+      <span>Optional, e.g. <code>eng</code>. Leave blank for transcription-only.</span>
+    </label>
+    <input id="targetLanguage" type="text" placeholder="eng" />
+
+    <div class="controls">
+      <button id="startButton">Start</button>
+      <button id="stopButton" disabled>Stop</button>
+    </div>
+
+    <div class="transcript-grid">
+      <div class="transcript-panel">
+        <h2>Source transcript</h2>
+        <pre id="sourceTranscript"></pre>
+      </div>
+      <div class="transcript-panel">
+        <h2>Translated transcript</h2>
+        <pre id="translatedTranscript"></pre>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

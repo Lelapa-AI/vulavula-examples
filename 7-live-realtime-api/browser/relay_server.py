@@ -1,0 +1,64 @@
+"""
+Tiny local relay server for the browser Live API example.
+
+The browser page must never hold a real VULAVULA_API_KEY -- anyone with devtools open could
+read it straight out of the page. Instead, the browser calls this local server, which holds
+the real key and mints a short-lived client secret on the page's behalf (the same pattern
+recommended by OpenAI's Realtime API docs: "your backend calls the real API, your frontend
+gets a short-lived token").
+
+Run with: pdm run relay   (see pyproject.toml)
+"""
+
+import os
+
+import requests
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
+load_dotenv()
+
+VULAVULA_API_KEY = os.environ["VULAVULA_API_KEY"]
+# Unlike the other examples, the Live API isn't routed on api.lelapa.ai yet -- it currently
+# only exists on their-cloud-mvp's own staging host. Switch this once /v1/realtime is
+# exposed on the public product domain.
+BASE_URL = os.environ.get("BASE_URL", "https://triton.staging.lelapa.ai")
+
+app = Flask(__name__)
+CORS(app)
+
+
+@app.post("/mint-token")
+def mint_token():
+    """
+    Mint a short-lived client secret for the browser to use on the Live API WebSocket.
+
+    Expects an optional JSON body: {"target_language": "eng"}. Omit or leave blank for
+    transcription-only.
+    """
+    target_language = (request.get_json(silent=True) or {}).get("target_language", "")
+
+    session = {
+        "audio": {
+            "input": {"format": {"type": "audio/pcm", "rate": 24000}},
+        }
+    }
+    if target_language:
+        session["audio"]["output"] = {"language": target_language}
+
+    response = requests.post(
+        f"{BASE_URL}/v1/realtime/client_secrets",
+        # The Live API's usage gate expects x-api-key, not X-CLIENT-TOKEN -- see vv-auth's
+        # /v1/verify-live-usage route.
+        headers={"x-api-key": VULAVULA_API_KEY, "Content-Type": "application/json"},
+        json={"session": session},
+    )
+    response.raise_for_status()
+
+    body = response.json()
+    return jsonify({"value": body["value"], "base_url": BASE_URL})
+
+
+if __name__ == "__main__":
+    app.run(port=8787)
