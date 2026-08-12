@@ -140,10 +140,14 @@ async function addPCMWorklet() {
   silent.connect(audioContext.destination);
 }
 
-async function startMicCapture() {
-  mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+async function ensureAudioContext() {
   audioContext = new AudioContext({ sampleRate: INPUT_SAMPLE_RATE });
   await addPCMWorklet();
+}
+
+async function startMicCapture() {
+  mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  await ensureAudioContext();
   const source = audioContext.createMediaStreamSource(mediaStream);
   source.connect(workletNode);
 }
@@ -156,9 +160,8 @@ async function startSamplePlayback() {
   const response = await fetch(`${RELAY_URL}/samples/${encodeURIComponent(sample.filename)}`);
   const wavBytes = await response.arrayBuffer();
 
-  audioContext = new AudioContext({ sampleRate: INPUT_SAMPLE_RATE });
+  await ensureAudioContext();
   const buffer = await audioContext.decodeAudioData(wavBytes);
-  await addPCMWorklet();
 
   const source = audioContext.createBufferSource();
   source.buffer = buffer;
@@ -177,7 +180,7 @@ async function start() {
   groundTruthPanel.hidden = true;
 
   const { value: clientSecret, base_url: baseUrl } = await mintClientSecret(targetLanguage);
-  const wsUrl = baseUrl.replace(/^https?:/, baseUrl.startsWith("https") ? "wss:" : "ws:") + REALTIME_WS_PATH;
+  const wsUrl = baseUrl.replace(/^https?/, "ws") + REALTIME_WS_PATH;
 
   // Browsers can't send custom headers on a WS handshake, so the client secret is passed via
   // the Sec-WebSocket-Protocol subprotocol list instead.

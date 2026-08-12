@@ -17,6 +17,7 @@ import base64
 import difflib
 import json
 import os
+import re
 import sys
 import wave
 
@@ -75,6 +76,19 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str, input_
     return response.json()["value"]
 
 
+def open_pcm16_wav(wav_path: str):
+    """
+    Open a WAV file, raising ValueError if it isn't mono 16-bit PCM. Use as a context
+    manager (`with open_pcm16_wav(...) as wav_file`) -- the single validation point for
+    both the sample-rate lookup and the chunk reader.
+    """
+    wav_file = wave.open(os.fspath(wav_path), "rb")
+    if wav_file.getsampwidth() != 2 or wav_file.getnchannels() != 1:
+        wav_file.close()
+        raise ValueError("Expected a mono 16-bit PCM WAV file")
+    return wav_file
+
+
 def read_pcm16_chunks(wav_path: str, chunk_ms: int = CHUNK_MS):
     """
     Yield raw PCM16 audio chunks from a mono WAV file, sized to `chunk_ms` milliseconds each.
@@ -85,14 +99,8 @@ def read_pcm16_chunks(wav_path: str, chunk_ms: int = CHUNK_MS):
 
     Yields:
         bytes: Raw PCM16 audio frames for one chunk.
-
-    Raises:
-        ValueError: If the WAV file isn't mono 16-bit PCM.
     """
-    with wave.open(os.fspath(wav_path), "rb") as wav_file:
-        if wav_file.getsampwidth() != 2 or wav_file.getnchannels() != 1:
-            raise ValueError("Expected a mono 16-bit PCM WAV file")
-
+    with open_pcm16_wav(wav_path) as wav_file:
         frames_per_chunk = int(wav_file.getframerate() * chunk_ms / 1000)
         while True:
             frames = wav_file.readframes(frames_per_chunk)
@@ -102,7 +110,7 @@ def read_pcm16_chunks(wav_path: str, chunk_ms: int = CHUNK_MS):
 
 
 def get_wav_sample_rate(wav_path: str) -> int:
-    with wave.open(os.fspath(wav_path), "rb") as wav_file:
+    with open_pcm16_wav(wav_path) as wav_file:
         return wav_file.getframerate()
 
 
@@ -210,7 +218,7 @@ def main():
     client_secret = mint_client_secret(
         settings.BASE_URL, settings.VULAVULA_API_KEY, settings.TARGET_LANGUAGE, input_sample_rate
     )
-    ws_url = settings.BASE_URL.replace("https://", "wss://").replace("http://", "ws://") + REALTIME_WS_PATH
+    ws_url = re.sub(r"^https?", "ws", settings.BASE_URL) + REALTIME_WS_PATH
 
     print("\nStreaming at realtime pace -- deltas appear as the server sends them.\n")
     live_source, live_translated = asyncio.run(stream_audio(ws_url, client_secret, sample))

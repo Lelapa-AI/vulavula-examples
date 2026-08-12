@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Anchor the default to the repo-root data/ folder relative to this file, so the example
 # works regardless of the working directory it's run from (same convention as
 # 3-transcription). Can still be overridden via DATA_DIR in .env.
+# (this file sits at <repo>/7-live-realtime-api/python/src/live_realtime_api/ -> parents[4] is <repo>)
 DEFAULT_DATA_DIR = str(Path(__file__).resolve().parents[4] / "data")
 
 
