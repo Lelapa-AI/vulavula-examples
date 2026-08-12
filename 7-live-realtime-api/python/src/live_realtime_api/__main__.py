@@ -14,7 +14,6 @@ reference.
 
 import asyncio
 import base64
-import difflib
 import json
 import os
 import re
@@ -114,22 +113,21 @@ def get_wav_sample_rate(wav_path: str) -> int:
         return wav_file.getframerate()
 
 
-def _emit_delta(label: str, delta: str, current_label: str, parts: list) -> str:
+def _emit_delta(label: str, delta: str, current_label: str) -> str:
     """
     Print a transcript delta, starting a new labeled line when the stream switches
-    between source and translated output. Also accumulates the delta in `parts`.
+    between source and translated output.
     """
-    parts.append(delta)
     if label != current_label:
         print(f"\n{label}: ", end="", flush=True)
     print(delta, end="", flush=True)
     return label
 
 
-async def consume_events(ws, source_parts: list, translated_parts: list) -> None:
+async def consume_events(ws) -> None:
     """
-    Read server events until the session closes: print transcript/translation deltas
-    as they arrive and accumulate them for the ground-truth comparison.
+    Read server events until the session closes, printing transcript/translation
+    deltas as they arrive.
     """
     current_label = None
     async for message in ws:
@@ -137,9 +135,9 @@ async def consume_events(ws, source_parts: list, translated_parts: list) -> None
         event_type = event.get("type")
 
         if event_type == "session.input_transcript.delta":
-            current_label = _emit_delta("source", event["delta"], current_label, source_parts)
+            current_label = _emit_delta("source", event["delta"], current_label)
         elif event_type == "session.output_transcript.delta":
-            current_label = _emit_delta("translated", event["delta"], current_label, translated_parts)
+            current_label = _emit_delta("translated", event["delta"], current_label)
         elif event_type == "error":
             print(f"\n[error] {event['error']['message']}", file=sys.stderr)
             return  # session failed -- lets stream_audio stop sending early
@@ -148,17 +146,16 @@ async def consume_events(ws, source_parts: list, translated_parts: list) -> None
             return
 
 
-async def stream_audio(ws_url: str, client_secret: str, sample) -> tuple:
+async def stream_audio(ws_url: str, client_secret: str, sample) -> None:
     """
-    Open the Live API WebSocket, stream a sample WAV as PCM16 chunks at realtime pace,
-    and return the accumulated (source, translated) transcripts.
+    Open the Live API WebSocket and stream a sample WAV as PCM16 chunks at realtime
+    pace, printing transcript/translation deltas as they arrive.
     """
     async with websockets.connect(
         ws_url,
         subprotocols=["realtime", f"vulavula-insecure-api-key.{client_secret}"],
     ) as ws:
-        source_parts, translated_parts = [], []
-        receiver = asyncio.create_task(consume_events(ws, source_parts, translated_parts))
+        receiver = asyncio.create_task(consume_events(ws))
 
         for chunk in read_pcm16_chunks(sample.path):
             if receiver.done():
@@ -171,27 +168,16 @@ async def stream_audio(ws_url: str, client_secret: str, sample) -> tuple:
 
         await ws.send(json.dumps({"type": "session.close"}))
         await receiver
-        return "".join(source_parts), "".join(translated_parts)
 
 
-def print_ground_truth(sample, live_source: str, live_translated: str) -> None:
+def print_ground_truth(sample) -> None:
     """
-    Print the sample's ground-truth transcript/translation from the metadata CSV and a
-    similarity score against what the Live API actually produced.
+    Print the sample's reference transcript/translation from the metadata CSV so the
+    live output can be compared side by side. Reference text only -- no scoring.
     """
     print("\n── Ground truth (data/ metadata CSV) ─────────────")
     print(f"source:     {sample.transcript}")
     print(f"translated: {sample.translation}")
-
-    if not live_source.strip():
-        print("\n(no live transcript captured -- check VULAVULA_API_KEY and BASE_URL)")
-        return
-
-    source_sim = difflib.SequenceMatcher(None, live_source, sample.transcript).ratio()
-    print(f"\nsimilarity vs live output: source {source_sim:.1%}")
-    if live_translated.strip():
-        trans_sim = difflib.SequenceMatcher(None, live_translated, sample.translation).ratio()
-        print(f"                           translation {trans_sim:.1%}")
 
 
 def main():
@@ -221,10 +207,10 @@ def main():
     ws_url = re.sub(r"^https?", "ws", settings.BASE_URL) + REALTIME_WS_PATH
 
     print("\nStreaming at realtime pace -- deltas appear as the server sends them.\n")
-    live_source, live_translated = asyncio.run(stream_audio(ws_url, client_secret, sample))
+    asyncio.run(stream_audio(ws_url, client_secret, sample))
 
     if settings.SHOW_GROUND_TRUTH:
-        print_ground_truth(sample, live_source, live_translated)
+        print_ground_truth(sample)
 
 
 if __name__ == "__main__":

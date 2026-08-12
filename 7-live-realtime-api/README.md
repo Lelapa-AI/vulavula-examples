@@ -24,9 +24,8 @@ pdm install -p .
 Set up `.env` from `.env.example` (your `VULAVULA_API_KEY`). `SAMPLE_INDEX` picks which
 clip to stream (0-4, see the metadata CSV); `TARGET_LANGUAGE` defaults to `eng`
 (isiZulu → English) -- leave it blank for transcription-only. Set `SHOW_GROUND_TRUTH=true`
-to also print the CSV's reference transcript/translation and a similarity score after
-streaming (off by default -- it's illustrative only, not an accuracy benchmark while the
-models are being tuned).
+to also print the CSV's reference transcript/translation after streaming for side-by-side
+comparison (off by default).
 
 ```commandline
 pdm run live

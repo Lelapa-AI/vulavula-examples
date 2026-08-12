@@ -37,9 +37,8 @@ class Settings(BaseSettings):
     # Leave blank ("") for transcription-only.
     TARGET_LANGUAGE: str = "eng"
 
-    # Print the CSV's ground-truth transcript/translation after streaming, with a
-    # similarity score against what the Live API produced. Off by default: the score
-    # isn't an accuracy benchmark while the models are being tuned.
+    # Print the CSV's ground-truth transcript/translation after streaming, as a
+    # reference for comparing with the live output. Off by default.
     SHOW_GROUND_TRUTH: bool = False
 
 
