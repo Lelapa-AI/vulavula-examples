@@ -3,9 +3,9 @@
 Streams one of the bundled isiZulu sample WAVs (indexed in
 [`data/vulavula-isizulu-samples - 5_sample_metadata.csv`](../../data/vulavula-isizulu-samples%20-%205_sample_metadata.csv))
 over the Vulavula Live API WebSocket at realtime pace. Transcript deltas print as
-they arrive; with `SHOW_GROUND_TRUTH=true` the CSV's reference transcript and
-translation are printed afterwards, with a similarity score, so you can see exactly
-the experience a customer gets: live isiZulu transcription + English translation.
+they arrive. Set `SHOW_GROUND_TRUTH=true` (off by default) to also print the CSV's
+reference transcript and translation with a similarity score -- illustrative only, not an
+accuracy benchmark while the models are being tuned.
 
 ## Setup
 

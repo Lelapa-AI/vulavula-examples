@@ -21,11 +21,8 @@ class Settings(BaseSettings):
     # Your Vulavula API key. (Obtain the key from https://vulavula.lelapa.ai/)
     VULAVULA_API_KEY: str
 
-    # The base URL for the API (no leading slash). NOTE: unlike the other examples,
-    # the Live API isn't routed on api.lelapa.ai yet -- it currently only exists on
-    # their-cloud-mvp's own staging host. Switch this once /v1/realtime is exposed on
-    # the public product domain.
-    BASE_URL: str = "https://triton.staging.lelapa.ai"
+    # The base URL for the API (no leading slash).
+    BASE_URL: str = "https://api.lelapa.ai"
 
     # Folder containing the sample WAVs and the metadata index CSV (repo-root `data/`).
     # Defaults to the repo-root data/ folder next to this example; override if your
@@ -40,8 +37,9 @@ class Settings(BaseSettings):
     TARGET_LANGUAGE: str = "eng"
 
     # Print the CSV's ground-truth transcript/translation after streaming, with a
-    # similarity score against what the Live API produced.
-    SHOW_GROUND_TRUTH: bool = True
+    # similarity score against what the Live API produced. Off by default: the score
+    # isn't an accuracy benchmark while the models are being tuned.
+    SHOW_GROUND_TRUTH: bool = False
 
 
 # The '@lru_cache()' decorator caches the result of the function, so subsequent calls

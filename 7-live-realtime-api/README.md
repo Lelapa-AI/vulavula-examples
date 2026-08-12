@@ -3,11 +3,8 @@ Demonstrates the Vulavula Live API: streaming transcription and (optionally) tra
 a WebSocket, modeled on OpenAI's Realtime API. See the [Live API
 docs](https://docs.lelapa.ai/live/realtime) for the full protocol reference.
 
-> **Note:** unlike the other examples in this repo, `/v1/realtime` isn't routed on the public
-> `api.lelapa.ai` product domain yet -- it currently only exists on their-cloud-mvp's own
-> staging host (`triton.staging.lelapa.ai`, the default `BASE_URL` below), and isn't deployed
-> to prod at all yet. You'll also need an API key with a `REALTIME`-channel subscription
-> provisioned for it to pass the usage gate.
+> **Note:** you'll need an API key with a `REALTIME`-channel subscription provisioned for it
+> to pass the usage gate.
 
 Both variants stream the bundled isiZulu sample clips in [`data/`](../data/). The clips and
 their ground truth (reference transcript + translation, domain/topic, speaker metadata) are
@@ -26,9 +23,10 @@ pdm install -p .
 
 Set up `.env` from `.env.example` (your `VULAVULA_API_KEY`). `SAMPLE_INDEX` picks which
 clip to stream (0-4, see the metadata CSV); `TARGET_LANGUAGE` defaults to `eng`
-(isiZulu → English) -- leave it blank for transcription-only. With `SHOW_GROUND_TRUTH=true`
-(default) the CSV's reference transcript/translation and a similarity score are printed after
-streaming.
+(isiZulu → English) -- leave it blank for transcription-only. Set `SHOW_GROUND_TRUTH=true`
+to also print the CSV's reference transcript/translation and a similarity score after
+streaming (off by default -- it's illustrative only, not an accuracy benchmark while the
+models are being tuned).
 
 ```commandline
 pdm run live

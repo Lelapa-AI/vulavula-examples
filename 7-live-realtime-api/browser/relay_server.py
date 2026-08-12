@@ -26,10 +26,7 @@ from flask_cors import CORS
 load_dotenv()
 
 VULAVULA_API_KEY = os.environ["VULAVULA_API_KEY"]
-# Unlike the other examples, the Live API isn't routed on api.lelapa.ai yet -- it
-# currently only exists on their-cloud-mvp's own staging host. Switch this once
-# /v1/realtime is exposed on the public product domain.
-BASE_URL = os.environ.get("BASE_URL", "https://triton.staging.lelapa.ai")
+BASE_URL = os.environ.get("BASE_URL", "https://api.lelapa.ai")
 # Repo-root data/ folder: sample WAVs + metadata index CSV. Anchored to this file so it
 # works regardless of the working directory; override with DATA_DIR if needed.
 DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[2] / "data")))
