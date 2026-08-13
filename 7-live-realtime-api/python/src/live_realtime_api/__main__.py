@@ -62,9 +62,8 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str, input_
     try:
         response = requests.post(
             f"{base_url}{CLIENT_SECRET_PATH}",
-            # The Live API's usage gate expects x-api-key, not X-CLIENT-TOKEN (which the
-            # other, sync-transcription examples use) -- see vv-auth's
-            # /v1/verify-live-usage route.
+            # The Live API authenticates via the x-api-key header (not the
+            # X-CLIENT-TOKEN header used by the sync-transcription examples).
             headers={"x-api-key": api_key, "Content-Type": "application/json"},
             json={"session": session},
         )
@@ -157,17 +156,23 @@ async def stream_audio(ws_url: str, client_secret: str, sample) -> None:
     ) as ws:
         receiver = asyncio.create_task(consume_events(ws))
 
-        for chunk in read_pcm16_chunks(sample.path):
-            if receiver.done():
-                break  # session ended early (server error / socket closed)
-            await ws.send(json.dumps({
-                "type": "session.input_audio_buffer.append",
-                "audio": base64.b64encode(chunk).decode(),
-            }))
-            await asyncio.sleep(CHUNK_MS / 1000)  # pace at realtime speed
+        try:
+            for chunk in read_pcm16_chunks(sample.path):
+                if receiver.done():
+                    break  # session ended early (server error / socket closed)
+                await ws.send(json.dumps({
+                    "type": "session.input_audio_buffer.append",
+                    "audio": base64.b64encode(chunk).decode(),
+                }))
+                await asyncio.sleep(CHUNK_MS / 1000)  # pace at realtime speed
+            await ws.send(json.dumps({"type": "session.close"}))
+        except websockets.ConnectionClosed:
+            pass  # server closed the socket mid-stream
 
-        await ws.send(json.dumps({"type": "session.close"}))
-        await receiver
+        try:
+            await receiver
+        except websockets.ConnectionClosed:
+            pass  # connection dropped before the session ended cleanly
 
 
 def print_ground_truth(sample) -> None:

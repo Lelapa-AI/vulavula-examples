@@ -199,6 +199,9 @@ async function start() {
     }
   };
 
+  ws.onerror = (event) => console.error("WebSocket error:", event);
+  ws.onclose = () => stop(); // clean up mic/audio-context/buttons on drop or failed handshake
+
   ws.onopen = async () => {
     if (modeSelect.value === "sample") {
       await startSamplePlayback();

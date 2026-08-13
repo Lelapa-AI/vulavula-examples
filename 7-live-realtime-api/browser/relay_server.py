@@ -97,8 +97,8 @@ def mint_token():
 
     response = requests.post(
         f"{BASE_URL}/v1/realtime/client_secrets",
-        # The Live API's usage gate expects x-api-key, not X-CLIENT-TOKEN -- see vv-auth's
-        # /v1/verify-live-usage route.
+        # The Live API authenticates via the x-api-key header (not the
+        # X-CLIENT-TOKEN header used by the sync-transcription examples).
         headers={"x-api-key": VULAVULA_API_KEY, "Content-Type": "application/json"},
         json={"session": session},
     )
