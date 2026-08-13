@@ -39,7 +39,7 @@ def mint_client_secret(settings, input_sample_rate: int) -> str:
 
     Args:
         settings (Settings): Configuration -- VULAVULA_API_KEY, BASE_URL, and the optional
-            TARGET_LANGUAGE translation toggle.
+            SOURCE_LANGUAGE / TARGET_LANGUAGE language toggles.
         input_sample_rate (int): Sample rate of the audio you'll stream -- must match the
             actual WAV file's frame rate, since the server resamples based on this value.
 
@@ -54,6 +54,8 @@ def mint_client_secret(settings, input_sample_rate: int) -> str:
             "input": {"format": {"type": "audio/pcm", "rate": input_sample_rate}},
         }
     }
+    if settings.SOURCE_LANGUAGE:
+        session["audio"]["input"]["transcription"] = {"language": settings.SOURCE_LANGUAGE}
     if settings.TARGET_LANGUAGE:
         session["audio"]["output"] = {"language": settings.TARGET_LANGUAGE}
 

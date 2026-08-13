@@ -24,10 +24,10 @@ pdm install -p .
 
 Set up `.env` from `.env.example` (your `VULAVULA_API_KEY`). To verify with your own audio,
 set `AUDIO_FILE_PATH` to a mono 16-bit PCM WAV (16 or 24 kHz) -- otherwise `SAMPLE_INDEX`
-picks one of the bundled clips (0-4, see the metadata CSV). `TARGET_LANGUAGE` defaults to
-`eng` (isiZulu → English) -- leave it blank for transcription-only. Set `SHOW_GROUND_TRUTH=true`
-to also print a bundled clip's reference transcript/translation for side-by-side comparison
-(off by default).
+picks one of the bundled clips (0-4, see the metadata CSV). `SOURCE_LANGUAGE` sets the source
+language (defaults to isiZulu); `TARGET_LANGUAGE` defaults to `eng` (isiZulu → English) --
+leave it blank for transcription-only. Set `SHOW_GROUND_TRUTH=true` to also print a bundled
+clip's reference transcript/translation for side-by-side comparison (off by default).
 
 ```commandline
 pdm run live
