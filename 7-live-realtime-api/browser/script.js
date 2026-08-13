@@ -180,7 +180,7 @@ async function start() {
   groundTruthPanel.hidden = true;
 
   const { value: clientSecret, base_url: baseUrl } = await mintClientSecret(targetLanguage);
-  const wsUrl = baseUrl.replace(/^https?/, "ws") + REALTIME_WS_PATH;
+  const wsUrl = baseUrl.replace(/^http/, "ws") + REALTIME_WS_PATH;
 
   // Browsers can't send custom headers on a WS handshake, so the client secret is passed via
   // the Sec-WebSocket-Protocol subprotocol list instead.

@@ -204,7 +204,7 @@ def main():
     client_secret = mint_client_secret(
         settings.BASE_URL, settings.VULAVULA_API_KEY, settings.TARGET_LANGUAGE, input_sample_rate
     )
-    ws_url = re.sub(r"^https?", "ws", settings.BASE_URL) + REALTIME_WS_PATH
+    ws_url = re.sub(r"^http", "ws", settings.BASE_URL) + REALTIME_WS_PATH
 
     print("\nStreaming at realtime pace -- deltas appear as the server sends them.\n")
     asyncio.run(stream_audio(ws_url, client_secret, sample))
