@@ -227,7 +227,7 @@ function stop() {
   if (mediaStream) {
     mediaStream.getTracks().forEach((track) => track.stop());
   }
-  if (audioContext) {
+  if (audioContext && audioContext.state !== "closed") {
     audioContext.close();
   }
 
