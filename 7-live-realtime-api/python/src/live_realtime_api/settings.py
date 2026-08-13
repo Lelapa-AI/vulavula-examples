@@ -38,10 +38,6 @@ class Settings(BaseSettings):
     # SAMPLE_INDEX / DATA_DIR.
     AUDIO_FILE_PATH: str = ""
 
-    # Source language code (e.g. "zul" for isiZulu, "sot" for Sesotho, "eng" for English).
-    # Leave blank to use the API default (isiZulu).
-    SOURCE_LANGUAGE: str = ""
-
     # Target language code to enable translation (e.g. "eng" for isiZulu -> English).
     # Leave blank ("") for transcription-only.
     TARGET_LANGUAGE: str = "eng"

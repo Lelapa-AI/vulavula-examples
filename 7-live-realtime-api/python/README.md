@@ -29,7 +29,6 @@ Configuration (all optional, in `.env`):
 | --- | --- | --- |
 | `SAMPLE_INDEX` | `0` | Which bundled clip to stream (0-4) |
 | `AUDIO_FILE_PATH` | *(unset)* | Stream your own WAV instead of a bundled clip |
-| `SOURCE_LANGUAGE` | *(API default: isiZulu)* | e.g. `zul`, `sot`, `eng` |
 | `TARGET_LANGUAGE` | `eng` | Translation target; blank = transcription-only |
 | `SHOW_GROUND_TRUTH` | `false` | Also print a bundled clip's reference text (no scoring) |
 

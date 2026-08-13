@@ -31,18 +31,15 @@ REALTIME_WS_PATH = "/v1/realtime"
 CHUNK_MS = 100  # stream in 100ms PCM chunks, paced at realtime speed
 
 
-def mint_client_secret(base_url: str, api_key: str, source_language: str, target_language: str, input_sample_rate: int) -> str:
+def mint_client_secret(settings, input_sample_rate: int) -> str:
     """
     Call the Live API's REST endpoint to mint a short-lived client secret. This step must
     happen server-side with your real API key -- only the returned short-lived value should
     ever reach a client (browser, mobile app, etc).
 
     Args:
-        base_url (str): The Vulavula API base URL.
-        api_key (str): Your real Vulavula API key.
-        source_language (str): Source language code (e.g. "zul"), or "" for the API default.
-        target_language (str): Target language code to enable translation, or "" for
-            transcription-only.
+        settings (Settings): Configuration -- VULAVULA_API_KEY, BASE_URL, and the optional
+            TARGET_LANGUAGE translation toggle.
         input_sample_rate (int): Sample rate of the audio you'll stream -- must match the
             actual WAV file's frame rate, since the server resamples based on this value.
 
@@ -57,17 +54,15 @@ def mint_client_secret(base_url: str, api_key: str, source_language: str, target
             "input": {"format": {"type": "audio/pcm", "rate": input_sample_rate}},
         }
     }
-    if source_language:
-        session["audio"]["input"]["transcription"] = {"language": source_language}
-    if target_language:
-        session["audio"]["output"] = {"language": target_language}
+    if settings.TARGET_LANGUAGE:
+        session["audio"]["output"] = {"language": settings.TARGET_LANGUAGE}
 
     try:
         response = requests.post(
-            f"{base_url}{CLIENT_SECRET_PATH}",
+            f"{settings.BASE_URL}{CLIENT_SECRET_PATH}",
             # The Live API authenticates via the x-api-key header (not the
             # X-CLIENT-TOKEN header used by the sync-transcription examples).
-            headers={"x-api-key": api_key, "Content-Type": "application/json"},
+            headers={"x-api-key": settings.VULAVULA_API_KEY, "Content-Type": "application/json"},
             json={"session": session},
         )
         response.raise_for_status()
@@ -221,10 +216,7 @@ def main():
     except (FileNotFoundError, ValueError) as e:
         sys.exit(f"Cannot stream {wav_path!r}: {e}")
 
-    client_secret = mint_client_secret(
-        settings.BASE_URL, settings.VULAVULA_API_KEY,
-        settings.SOURCE_LANGUAGE, settings.TARGET_LANGUAGE, input_sample_rate,
-    )
+    client_secret = mint_client_secret(settings, input_sample_rate)
     ws_url = re.sub(r"^http", "ws", settings.BASE_URL) + REALTIME_WS_PATH
 
     print("\nStreaming at realtime pace -- deltas appear as the server sends them.\n")
