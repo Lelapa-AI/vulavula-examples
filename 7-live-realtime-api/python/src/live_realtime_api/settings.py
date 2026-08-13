@@ -33,6 +33,15 @@ class Settings(BaseSettings):
     # Which row of the metadata CSV to stream (0-based).
     SAMPLE_INDEX: int = 0
 
+    # Optional: stream your own mono 16-bit PCM WAV (16 or 24 kHz) instead of a bundled
+    # sample -- the quickest way to verify the API against your own audio. Overrides
+    # SAMPLE_INDEX / DATA_DIR.
+    AUDIO_FILE_PATH: str = ""
+
+    # Source language code (e.g. "zul" for isiZulu, "sot" for Sesotho, "eng" for English).
+    # Leave blank to use the API default (isiZulu).
+    SOURCE_LANGUAGE: str = ""
+
     # Target language code to enable translation (e.g. "eng" for isiZulu -> English).
     # Leave blank ("") for transcription-only.
     TARGET_LANGUAGE: str = "eng"

@@ -31,7 +31,7 @@ REALTIME_WS_PATH = "/v1/realtime"
 CHUNK_MS = 100  # stream in 100ms PCM chunks, paced at realtime speed
 
 
-def mint_client_secret(base_url: str, api_key: str, target_language: str, input_sample_rate: int) -> str:
+def mint_client_secret(base_url: str, api_key: str, source_language: str, target_language: str, input_sample_rate: int) -> str:
     """
     Call the Live API's REST endpoint to mint a short-lived client secret. This step must
     happen server-side with your real API key -- only the returned short-lived value should
@@ -40,6 +40,7 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str, input_
     Args:
         base_url (str): The Vulavula API base URL.
         api_key (str): Your real Vulavula API key.
+        source_language (str): Source language code (e.g. "zul"), or "" for the API default.
         target_language (str): Target language code to enable translation, or "" for
             transcription-only.
         input_sample_rate (int): Sample rate of the audio you'll stream -- must match the
@@ -56,6 +57,8 @@ def mint_client_secret(base_url: str, api_key: str, target_language: str, input_
             "input": {"format": {"type": "audio/pcm", "rate": input_sample_rate}},
         }
     }
+    if source_language:
+        session["audio"]["input"]["transcription"] = {"language": source_language}
     if target_language:
         session["audio"]["output"] = {"language": target_language}
 
@@ -145,10 +148,10 @@ async def consume_events(ws) -> None:
             return
 
 
-async def stream_audio(ws_url: str, client_secret: str, sample) -> None:
+async def stream_audio(ws_url: str, client_secret: str, wav_path: str) -> None:
     """
-    Open the Live API WebSocket and stream a sample WAV as PCM16 chunks at realtime
-    pace, printing transcript/translation deltas as they arrive.
+    Open the Live API WebSocket and stream a WAV as PCM16 chunks at realtime pace,
+    printing transcript/translation deltas as they arrive.
     """
     async with websockets.connect(
         ws_url,
@@ -157,7 +160,7 @@ async def stream_audio(ws_url: str, client_secret: str, sample) -> None:
         receiver = asyncio.create_task(consume_events(ws))
 
         try:
-            for chunk in read_pcm16_chunks(sample.path):
+            for chunk in read_pcm16_chunks(wav_path):
                 if receiver.done():
                     break  # session ended early (server error / socket closed)
                 await ws.send(json.dumps({
@@ -187,34 +190,47 @@ def print_ground_truth(sample) -> None:
 
 def main():
     """
-    Pick a sample from the data/ index, mint a client secret, stream the WAV over the
-    Live API WebSocket at realtime pace, then (optionally) compare with ground truth.
+    Stream audio over the Live API WebSocket at realtime pace -- either a bundled sample
+    (SAMPLE_INDEX) or your own WAV (AUDIO_FILE_PATH) -- then, for bundled samples,
+    optionally print its ground-truth transcript/translation.
     """
     settings = get_settings()
 
-    samples = load_samples(settings.DATA_DIR)
-    if not samples:
-        sys.exit(f"No samples found in {settings.DATA_DIR!r} -- check DATA_DIR.")
-    if not 0 <= settings.SAMPLE_INDEX < len(samples):
-        sys.exit(f"SAMPLE_INDEX {settings.SAMPLE_INDEX} out of range (0-{len(samples) - 1}).")
-    sample = samples[settings.SAMPLE_INDEX]
-
     print("Vulavula Live API -- realtime transcription + translation")
-    print(f"▶ Sample {settings.SAMPLE_INDEX + 1}/{len(samples)} -- {sample.domain} · {sample.topic} · {sample.scenario}")
-    print(f"  file:    {sample.filename}")
-    print(f"  speaker: {sample.gender}, {sample.age_range} · {sample.duration:.1f}s")
+
+    if settings.AUDIO_FILE_PATH:
+        wav_path = settings.AUDIO_FILE_PATH
+        sample = None
+        print(f"▶ File: {wav_path}")
+    else:
+        samples = load_samples(settings.DATA_DIR)
+        if not samples:
+            sys.exit(f"No samples found in {settings.DATA_DIR!r} -- check DATA_DIR.")
+        if not 0 <= settings.SAMPLE_INDEX < len(samples):
+            sys.exit(f"SAMPLE_INDEX {settings.SAMPLE_INDEX} out of range (0-{len(samples) - 1}).")
+        sample = samples[settings.SAMPLE_INDEX]
+        wav_path = sample.path
+        print(f"▶ Sample {settings.SAMPLE_INDEX + 1}/{len(samples)} -- {sample.domain} · {sample.topic} · {sample.scenario}")
+        print(f"  file:    {sample.filename}")
+        print(f"  speaker: {sample.gender}, {sample.age_range} · {sample.duration:.1f}s")
+
     print(f"  target:  {settings.TARGET_LANGUAGE or '(transcription-only)'}")
 
-    input_sample_rate = get_wav_sample_rate(sample.path)
+    try:
+        input_sample_rate = get_wav_sample_rate(wav_path)
+    except (FileNotFoundError, ValueError) as e:
+        sys.exit(f"Cannot stream {wav_path!r}: {e}")
+
     client_secret = mint_client_secret(
-        settings.BASE_URL, settings.VULAVULA_API_KEY, settings.TARGET_LANGUAGE, input_sample_rate
+        settings.BASE_URL, settings.VULAVULA_API_KEY,
+        settings.SOURCE_LANGUAGE, settings.TARGET_LANGUAGE, input_sample_rate,
     )
     ws_url = re.sub(r"^http", "ws", settings.BASE_URL) + REALTIME_WS_PATH
 
     print("\nStreaming at realtime pace -- deltas appear as the server sends them.\n")
-    asyncio.run(stream_audio(ws_url, client_secret, sample))
+    asyncio.run(stream_audio(ws_url, client_secret, wav_path))
 
-    if settings.SHOW_GROUND_TRUTH:
+    if sample is not None and settings.SHOW_GROUND_TRUTH:
         print_ground_truth(sample)
 
 
