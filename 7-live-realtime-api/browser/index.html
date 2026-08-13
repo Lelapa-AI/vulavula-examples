@@ -12,18 +12,34 @@
   </header>
 
   <main>
-    <h1>Live API — microphone demo</h1>
+    <h1>Live API — realtime transcription + translation</h1>
     <p class="subtitle">
       Mints a short-lived token from the local relay server (<code>relay_server.py</code>,
-      holds your real API key), then streams your microphone audio to the Live API and shows
-      transcript/translation deltas below as they arrive.
+      holds your real API key), then streams audio to the Live API and shows
+      transcript/translation deltas live. Stream your microphone, or replay one of the
+      bundled isiZulu sample clips and compare with its ground truth.
     </p>
+
+    <label for="mode">
+      Input source
+      <span>Replay a bundled sample clip from <code>data/</code>, or capture your microphone.</span>
+    </label>
+    <select id="mode">
+      <option value="sample">Sample clip (from data/)</option>
+      <option value="mic">Microphone</option>
+    </select>
+
+    <label for="sampleSelect" id="sampleLabel">
+      Sample
+      <span>Clips indexed in <code>data/vulavula-isizulu-samples - 5_sample_metadata.csv</code>.</span>
+    </label>
+    <select id="sampleSelect"></select>
 
     <label for="targetLanguage">
       Target language
       <span>Optional, e.g. <code>eng</code>. Leave blank for transcription-only.</span>
     </label>
-    <input id="targetLanguage" type="text" placeholder="eng" />
+    <input id="targetLanguage" type="text" placeholder="eng" value="eng" />
 
     <div class="controls">
       <button id="startButton">Start</button>
@@ -39,6 +55,11 @@
         <h2>Translated transcript</h2>
         <pre id="translatedTranscript"></pre>
       </div>
+    </div>
+
+    <div class="transcript-panel ground-truth" id="groundTruthPanel" hidden>
+      <h2>Ground truth (reference from data/ metadata)</h2>
+      <pre id="groundTruth"></pre>
     </div>
   </main>
 

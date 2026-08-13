@@ -1,36 +1,62 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+from pathlib import Path
 
-# The 'Settings' class inherits from Pydantic's BaseSettings, which helps manage
-# environment variables and configuration settings for the application.
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Anchor the default to the repo-root data/ folder relative to this file, so the example
+# works regardless of the working directory it's run from (same convention as
+# 3-transcription). Can still be overridden via DATA_DIR in .env.
+# (this file sits at <repo>/7-live-realtime-api/python/src/live_realtime_api/ -> parents[4] is <repo>)
+DEFAULT_DATA_DIR = str(Path(__file__).resolve().parents[4] / "data")
+
+
 class Settings(BaseSettings):
+    """Environment-driven configuration for the Live API example (see `.env.example`)."""
+
     model_config = SettingsConfigDict(
         env_file=".env",  # Path to the .env file, where environment variables are stored.
         env_file_encoding="utf-8",  # The encoding to use when reading the .env file.
-        extra="ignore"  # Ignore any extra fields in the environment variables that aren't part of the Settings class.
+        extra="ignore",  # Ignore any extra fields in the environment variables that aren't part of the Settings class.
     )
 
-    # Define the environment variables the application needs. These will be loaded from the `.env` file.
-    VULAVULA_API_KEY: str  # The API key required for authenticating with the VULAVULA service. (Obtain the key from https://vulavula.lelapa.ai/)
-    # The base URL for the API (this has a default value but can be overridden in the .env
-    # file) NOTE: No leading slash should be included. Unlike the other examples, the Live
-    # API isn't routed on api.lelapa.ai yet -- it currently only exists on their-cloud-mvp's
-    # own staging host. Switch this once /v1/realtime is exposed on the public product domain.
-    BASE_URL: str = 'https://triton.staging.lelapa.ai'
-    AUDIO_FILE_PATH: str  # Path to a mono 16-bit PCM WAV file to stream.
-    TARGET_LANGUAGE: str = ""  # Optional target language code (e.g. "eng") to enable translation. Leave empty for transcription-only.
+    # Your Vulavula API key. (Obtain the key from https://vulavula.lelapa.ai/)
+    VULAVULA_API_KEY: str
+
+    # The base URL for the API (no leading slash).
+    BASE_URL: str = "https://api.lelapa.ai"
+
+    # Folder containing the sample WAVs and the metadata index CSV (repo-root `data/`).
+    # Defaults to the repo-root data/ folder next to this example; override if your
+    # samples live elsewhere.
+    DATA_DIR: str = DEFAULT_DATA_DIR
+
+    # Which row of the metadata CSV to stream (0-based).
+    SAMPLE_INDEX: int = 0
+
+    # Optional: stream your own mono 16-bit PCM WAV (16 or 24 kHz) instead of a bundled
+    # sample -- the quickest way to verify the API against your own audio. Overrides
+    # SAMPLE_INDEX / DATA_DIR.
+    AUDIO_FILE_PATH: str = ""
+
+    # Source language code (e.g. "zul" for isiZulu, "sot" for Sesotho, "eng" for English).
+    # Leave blank to use the API default (isiZulu).
+    SOURCE_LANGUAGE: str = ""
+
+    # Target language code to enable translation (e.g. "eng" for isiZulu -> English).
+    # Leave blank ("") for transcription-only.
+    TARGET_LANGUAGE: str = "eng"
+
+    # Print the CSV's ground-truth transcript/translation after streaming, as a
+    # reference for comparing with the live output. Off by default.
+    SHOW_GROUND_TRUTH: bool = False
 
 
-# The '@lru_cache()' decorator caches the result of the function, so subsequent calls to 'get_settings()'
-# will return the same instance of the Settings class, improving performance and ensuring
-# that the settings are only loaded once during the application's runtime.
+# The '@lru_cache()' decorator caches the result of the function, so subsequent calls
+# to 'get_settings()' return the same instance, and settings are only loaded from the
+# .env file once during the application's runtime.
 @lru_cache()
 def get_settings():
     """
-    This function returns an instance of the Settings class, which loads environment variables
-    and configuration settings required by the application.
-
-    It leverages the @lru_cache decorator to ensure that the settings are cached after the first call.
-    This improves performance by preventing re-loading the settings from the .env file repeatedly.
+    Return a cached Settings instance loaded from the `.env` file.
     """
-    return Settings()  # Create and return an instance of the Settings class, which will read from the .env file.
+    return Settings()
