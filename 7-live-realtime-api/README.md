@@ -36,6 +36,13 @@ pdm run live
 You'll see `source:` (isiZulu) and `translated:` (English) deltas stream in as the audio
 plays, ending with `[session closed]`.
 
+Each speech segment streams as append-only deltas while the speaker talks, then one
+`session.*_transcript.completed` event with the segment's final text. Both examples keep
+the text per segment (`item_id`) and use `completed` when the model revised words it had
+already sent: the Python client prints a `(corrected)` line, and the browser client
+replaces the segment's text. Run the Python tests with
+`python -m unittest discover -s python/tests`.
+
 ## Browser example
 
 ```commandline

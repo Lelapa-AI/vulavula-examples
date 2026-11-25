@@ -25,6 +25,7 @@ import websockets
 
 from samples import load_samples
 from settings import get_settings
+from transcript import SegmentTracker
 
 CLIENT_SECRET_PATH = "/v1/realtime/client_secrets"
 REALTIME_WS_PATH = "/v1/realtime"
@@ -126,17 +127,25 @@ def _emit_delta(label: str, delta: str, current_label: str) -> str:
 async def consume_events(ws) -> None:
     """
     Read server events until the session closes, printing transcript/translation
-    deltas as they arrive.
+    deltas as they arrive. Each segment ends with a `completed` event carrying its final
+    text; if the model revised words it had already sent, print the corrected version.
     """
     current_label = None
+    tracker = SegmentTracker()
     async for message in ws:
         event = json.loads(message)
         event_type = event.get("type")
 
-        if event_type == "session.input_transcript.delta":
-            current_label = _emit_delta("source", event["delta"], current_label)
-        elif event_type == "session.output_transcript.delta":
-            current_label = _emit_delta("translated", event["delta"], current_label)
+        if event_type in ("session.input_transcript.delta", "session.output_transcript.delta"):
+            label = "source" if event_type.startswith("session.input") else "translated"
+            tracker.on_delta(label, event.get("item_id"), event["delta"])
+            current_label = _emit_delta(label, event["delta"], current_label)
+        elif event_type in ("session.input_transcript.completed", "session.output_transcript.completed"):
+            label = "source" if event_type.startswith("session.input") else "translated"
+            corrected = tracker.on_completed(label, event.get("item_id"), event["transcript"])
+            if corrected is not None:
+                print(f"\n{label} (corrected): {corrected or '(no speech)'}", flush=True)
+                current_label = None
         elif event_type == "error":
             print(f"\n[error] {event['error']['message']}", file=sys.stderr)
             return  # session failed -- lets stream_audio stop sending early
