@@ -171,6 +171,28 @@ async function startSamplePlayback() {
   source.start();
 }
 
+// ---- Transcript rendering ----
+
+// Each speech segment (item_id) streams as append-only deltas, then one `completed` event
+// with its final text. Keep one <span> per segment so `completed` can replace it -- the model
+// occasionally revises words it already sent as deltas.
+function segmentSpan(container, itemId) {
+  const key = itemId || "default";
+  let span = container.querySelector(`span[data-item-id="${CSS.escape(key)}"]`);
+  if (!span) {
+    span = document.createElement("span");
+    span.dataset.itemId = key;
+    container.appendChild(span);
+  }
+  return span;
+}
+
+function completeSegment(container, itemId, transcript) {
+  // A segment that turned out to be empty is removed; otherwise show the final text.
+  const span = segmentSpan(container, itemId);
+  span.textContent = transcript ? transcript + "\n" : "";
+}
+
 // ---- Session lifecycle ----
 
 async function start() {
@@ -189,9 +211,13 @@ async function start() {
   ws.onmessage = (event) => {
     const message = JSON.parse(event.data);
     if (message.type === "session.input_transcript.delta") {
-      sourceEl.textContent += message.delta;
+      segmentSpan(sourceEl, message.item_id).textContent += message.delta;
     } else if (message.type === "session.output_transcript.delta") {
-      translatedEl.textContent += message.delta;
+      segmentSpan(translatedEl, message.item_id).textContent += message.delta;
+    } else if (message.type === "session.input_transcript.completed") {
+      completeSegment(sourceEl, message.item_id, message.transcript);
+    } else if (message.type === "session.output_transcript.completed") {
+      completeSegment(translatedEl, message.item_id, message.transcript);
     } else if (message.type === "error") {
       console.error("Live API error:", message.error);
     } else if (message.type === "session.closed") {
